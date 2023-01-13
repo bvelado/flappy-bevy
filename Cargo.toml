@@ -1,0 +1,13 @@
+[package]
+authors = ["Baptiste Velado"]
+description = "A flappy bird clone made with bevy for learning purposes."
+edition = "2021"
+name = "flappy-bevy"
+version = "0.1.0"
+readme = "README.md"
+
+[dependencies]
+bevy = {version = "0.9.1", features = ["dynamic"]}
+bevy_prototype_lyon = "0.7.2"
+bevy_rapier2d = {version = "0.19.0", features = ["debug-render"]}
+iyes_loopless = "0.9.1"
