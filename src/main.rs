@@ -4,23 +4,26 @@ mod assets;
 mod camera;
 mod consts;
 mod game;
+mod obstacles;
 mod player;
 mod world;
 
-use animations::animate_sprite;
 use bevy::{prelude::*, window::PresentMode};
-use bevy_prototype_lyon::prelude::*;
+// use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::{
     prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
-use consts::{BASE_GAME_SPEED, GAME_HEIGHT, GAME_WIDTH, GRAVITY};
-use game::{ground_buffer_swap, move_game_elements_horizontal, update_game_speed, GameSpeed};
+use bevy_turborand::prelude::*;
 use iyes_loopless::prelude::*;
 
+use animations::animate_sprite;
 use app_states::{AppState, InGameState, LaunchingState};
 use assets::{load_game_assets, start_game_when_assets_loaded};
 use camera::spawn_camera;
+use consts::{BASE_GAME_SPEED, GAME_HEIGHT, GAME_WIDTH, GRAVITY};
+use game::{ground_buffer_swap, move_game_elements_horizontal, update_game_speed, GameSpeed};
+use obstacles::{spawn_obstacles, update_obstacles_data, ObstaclesData};
 use player::{player_jump, spawn_player};
 use world::spawn_world_ground;
 
@@ -34,6 +37,7 @@ fn main() {
             gravity: Vec2::new(0.0, GRAVITY),
             ..Default::default()
         })
+        .init_resource::<ObstaclesData>()
         .add_plugins(
             DefaultPlugins
                 .set(WindowPlugin {
@@ -49,7 +53,8 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
         )
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(36.0))
-        .add_plugin(RapierDebugRenderPlugin::default())
+        // .add_plugin(RapierDebugRenderPlugin::default())
+        .add_plugin(RngPlugin::default())
         .add_loopless_state(AppState::Launching(LaunchingState::Loading))
         .add_startup_system(load_game_assets)
         .add_system(
@@ -63,6 +68,8 @@ fn main() {
         .add_system(update_game_speed.run_in_state(AppState::InGame(InGameState::Playing)))
         .add_system(ground_buffer_swap.run_in_state(AppState::InGame(InGameState::Playing)))
         .add_system(player_jump.run_in_state(AppState::InGame(InGameState::Playing)))
+        .add_system(update_obstacles_data.run_in_state(AppState::InGame(InGameState::Playing)))
+        .add_system(spawn_obstacles.run_in_state(AppState::InGame(InGameState::Playing)))
         // .add_enter_system(
         //     AppState::InGame(InGameState::Playing),
         //     spawn_world_background,

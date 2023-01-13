@@ -119,7 +119,32 @@
 				{ "px": [558,306], "src": [40,120], "f": 0, "t": 122, "d": [575] }
 			],
 			"entityInstances": []
+		},
+		{
+			"__identifier": "background_tiles",
+			"__type": "Tiles",
+			"__cWid": 32,
+			"__cHei": 18,
+			"__gridSize": 18,
+			"__opacity": 1,
+			"__pxTotalOffsetX": 0,
+			"__pxTotalOffsetY": 0,
+			"__tilesetDefUid": null,
+			"__tilesetRelPath": null,
+			"iid": "1dab8490-7820-11ed-bdbe-0d9ac23624e5",
+			"levelId": 3,
+			"layerDefUid": 6,
+			"pxOffsetX": 0,
+			"pxOffsetY": 0,
+			"visible": true,
+			"optionalRules": [],
+			"intGridCsv": [],
+			"autoLayerTiles": [],
+			"seed": 2091706,
+			"overrideTilesetUid": null,
+			"gridTiles": [],
+			"entityInstances": []
 		}
 	],
-	"__neighbours": [{ "levelIid": "d044e620-7820-11ed-bdbe-ed8d4726d440", "dir": "w" }]
+	"__neighbours": [ { "levelIid": "d044e620-7820-11ed-bdbe-ed8d4726d440", "dir": "w" }, { "levelIid": "f402ed30-7820-11ed-bdbe-bda897791c06", "dir": "e" } ]
 }

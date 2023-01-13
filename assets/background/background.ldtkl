@@ -85,6 +85,31 @@
 				{ "px": [468,198], "src": [300,140], "f": 0, "t": 155, "d": [378] }
 			],
 			"entityInstances": []
+		},
+		{
+			"__identifier": "background_tiles",
+			"__type": "Tiles",
+			"__cWid": 32,
+			"__cHei": 18,
+			"__gridSize": 18,
+			"__opacity": 1,
+			"__pxTotalOffsetX": 0,
+			"__pxTotalOffsetY": 0,
+			"__tilesetDefUid": 5,
+			"__tilesetRelPath": "background_tiles.png",
+			"iid": "1dab5d80-7820-11ed-bdbe-4df7dc6c3a99",
+			"levelId": 0,
+			"layerDefUid": 6,
+			"pxOffsetX": 0,
+			"pxOffsetY": 0,
+			"visible": true,
+			"optionalRules": [],
+			"intGridCsv": [],
+			"autoLayerTiles": [],
+			"seed": 9824395,
+			"overrideTilesetUid": 5,
+			"gridTiles": [],
+			"entityInstances": []
 		}
 	],
 	"__neighbours": [{ "levelIid": "20807db0-7820-11ed-bdbe-61cceb148344", "dir": "e" }]
