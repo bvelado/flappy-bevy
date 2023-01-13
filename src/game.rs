@@ -1,10 +1,17 @@
 use bevy::{
-    prelude::{info, Component, Local, Query, Res, ResMut, Resource, Transform, With},
+    prelude::{
+        info, Commands, Component, Entity, EventReader, Local, Query, Res, ResMut, Resource,
+        Transform, With,
+    },
     time::{Time, Timer, TimerMode},
 };
+use bevy_rapier2d::prelude::CollisionEvent;
+use iyes_loopless::state::NextState;
 
 use crate::{
+    app_states::{AppState, InGameState},
     consts::{ACCELERATION_FACTOR, BASE_MOVE_SPEED, GAME_WIDTH, SECONDS_BETWEEN_ACCELERATION_TICK},
+    player::Player,
     world::Ground,
 };
 
@@ -60,6 +67,23 @@ pub fn ground_buffer_swap(mut q_ground_elements: Query<&mut Transform, With<Grou
         if t.translation.x < -GAME_WIDTH / 2. {
             info!("Swap ! {} was less than {}", t.translation.x, -GAME_WIDTH);
             t.translation.x += 2.0 * GAME_WIDTH;
+        }
+    }
+}
+
+pub fn change_state_to_gameover_on_death_collision(
+    mut commands: Commands,
+    mut collision_events: EventReader<CollisionEvent>,
+    q_player: Query<Entity, With<Player>>,
+) {
+    for col_ev in collision_events.iter() {
+        match col_ev {
+            CollisionEvent::Started(ent_a, ent_b, _) => {
+                if q_player.contains(ent_a.clone()) || q_player.contains(ent_b.clone()) {
+                    commands.insert_resource(NextState(AppState::InGame(InGameState::ReadyToStart)))
+                }
+            }
+            _ => {}
         }
     }
 }

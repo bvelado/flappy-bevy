@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{info, Commands, Res, ResMut, Resource, Transform, Vec3},
+    prelude::{Commands, Component, Entity, Query, Res, ResMut, Resource, Transform, Vec3, With},
     sprite::{Anchor, Sprite, SpriteBundle},
     time::Time,
 };
@@ -14,6 +14,7 @@ use crate::{
     game::{GameSpeed, HorizontalMove},
 };
 
+const OBSTACLE_SPRITE_WIDTH: f32 = 18.0;
 const OBSTACLE_SPRITE_HEIGHT: f32 = 252.0;
 
 const OBSTACLE_MIN_HEIGHT: f32 = 54.0;
@@ -26,6 +27,9 @@ pub struct ObstaclesData {
     traveled_distance: f32,
     last_obstacle_distance: f32,
 }
+
+#[derive(Component)]
+pub struct Obstacle;
 
 pub fn update_obstacles_data(
     mut obstacle_data: ResMut<ObstaclesData>,
@@ -71,15 +75,36 @@ pub fn spawn_obstacles(
             Collider::cuboid(9.0, OBSTACLE_SPRITE_HEIGHT / 2.0),
             GravityScale(0.0),
             CollisionGroups::new(COLLISION_GROUP_DEATH, COLLISION_GROUP_PLAYER),
+            Obstacle,
         ));
 
         obstacles_data.last_obstacle_distance =
             obstacles_data.last_obstacle_distance - OBSTACLE_MIN_GAP - gap_offset_x;
-        info!(
-            "Spawned an obstacle at {}. Last obstacle distance is now {}.",
-            obstacle_pos_x, &obstacles_data.last_obstacle_distance
-        );
     }
+}
+
+pub fn despawn_passed_obstacles(
+    mut commands: Commands,
+    q_obstacles: Query<(Entity, &Transform), With<Obstacle>>,
+) {
+    for (e, t) in q_obstacles.iter() {
+        // should be obstacle sprite width / 2 but the delta is used as a safety measure
+        // to despawn only off screen obstacles
+        if t.translation.x < -OBSTACLE_SPRITE_WIDTH - GAME_WIDTH / 2.0 {
+            commands.entity(e).despawn();
+        }
+    }
+}
+
+pub fn reset_obstacles_state(
+    mut commands: Commands,
+    q_obstacles: Query<Entity, With<Obstacle>>,
+    mut obstacles_data: ResMut<ObstaclesData>,
+) {
+    for e in q_obstacles.iter() {
+        commands.entity(e).despawn();
+    }
+    *obstacles_data = ObstaclesData::default();
 }
 
 fn random_height(global_rng: &mut ResMut<GlobalRng>) -> f32 {

@@ -8,23 +8,26 @@ mod obstacles;
 mod player;
 mod world;
 
-use bevy::{prelude::*, window::PresentMode};
 // use bevy_prototype_lyon::prelude::*;
-use bevy_rapier2d::{
-    prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin},
-    render::RapierDebugRenderPlugin,
-};
+use bevy::{prelude::*, window::PresentMode};
+use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 use bevy_turborand::prelude::*;
 use iyes_loopless::prelude::*;
 
 use animations::animate_sprite;
-use app_states::{AppState, InGameState, LaunchingState};
-use assets::{load_game_assets, start_game_when_assets_loaded};
+use app_states::{change_state_to_playing_on_input, AppState, InGameState, LaunchingState};
+use assets::{change_state_to_ingame_when_assets_loaded, load_game_assets};
 use camera::spawn_camera;
 use consts::{BASE_GAME_SPEED, GAME_HEIGHT, GAME_WIDTH, GRAVITY};
-use game::{ground_buffer_swap, move_game_elements_horizontal, update_game_speed, GameSpeed};
-use obstacles::{spawn_obstacles, update_obstacles_data, ObstaclesData};
-use player::{player_jump, spawn_player};
+use game::{
+    change_state_to_gameover_on_death_collision, ground_buffer_swap, move_game_elements_horizontal,
+    update_game_speed, GameSpeed,
+};
+use obstacles::{
+    despawn_passed_obstacles, reset_obstacles_state, spawn_obstacles, update_obstacles_data,
+    ObstaclesData,
+};
+use player::{enable_player_gravity, player_jump, reset_player_state, spawn_player};
 use world::spawn_world_ground;
 
 fn main() {
@@ -56,26 +59,70 @@ fn main() {
         // .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(RngPlugin::default())
         .add_loopless_state(AppState::Launching(LaunchingState::Loading))
+        // LAUNCHING - LOADING
         .add_startup_system(load_game_assets)
-        .add_system(
-            start_game_when_assets_loaded
-                .run_in_state(AppState::Launching(LaunchingState::Loading)),
+        .add_system_set(
+            ConditionSet::new()
+                .run_in_state(AppState::Launching(LaunchingState::Loading))
+                .with_system(change_state_to_ingame_when_assets_loaded)
+                .into(),
         )
-        .add_system(animate_sprite.run_in_state(AppState::InGame(InGameState::Playing)))
-        .add_system(
-            move_game_elements_horizontal.run_in_state(AppState::InGame(InGameState::Playing)),
+        // LAUNCHING - READY
+        //
+        // IN GAME - INITIALIZATION
+        .add_enter_system_set(
+            AppState::InGame(InGameState::Initialization),
+            ConditionSet::new()
+                .with_system(spawn_world_ground)
+                .with_system(spawn_player)
+                .with_system(spawn_camera)
+                .into(),
         )
-        .add_system(update_game_speed.run_in_state(AppState::InGame(InGameState::Playing)))
-        .add_system(ground_buffer_swap.run_in_state(AppState::InGame(InGameState::Playing)))
-        .add_system(player_jump.run_in_state(AppState::InGame(InGameState::Playing)))
-        .add_system(update_obstacles_data.run_in_state(AppState::InGame(InGameState::Playing)))
-        .add_system(spawn_obstacles.run_in_state(AppState::InGame(InGameState::Playing)))
-        // .add_enter_system(
-        //     AppState::InGame(InGameState::Playing),
-        //     spawn_world_background,
-        // )
-        .add_enter_system(AppState::InGame(InGameState::Playing), spawn_world_ground)
-        .add_enter_system(AppState::InGame(InGameState::Playing), spawn_player)
-        .add_enter_system(AppState::InGame(InGameState::Playing), spawn_camera)
+        .add_system_set(
+            ConditionSet::new()
+                .run_in_state(AppState::InGame(InGameState::Initialization))
+                .with_system(change_state_to_ready_to_start)
+                .into(),
+        )
+        // IN GAME - READY TO START
+        .add_enter_system_set(
+            AppState::InGame(InGameState::ReadyToStart),
+            ConditionSet::new()
+                .with_system(reset_player_state)
+                .with_system(reset_obstacles_state)
+                .into(),
+        )
+        .add_system_set(
+            ConditionSet::new()
+                .run_in_state(AppState::InGame(InGameState::ReadyToStart))
+                .with_system(change_state_to_playing_on_input)
+                .with_system(animate_sprite)
+                .into(),
+        )
+        // IN GAME - PLAYING
+        .add_enter_system_set(
+            AppState::InGame(InGameState::Playing),
+            ConditionSet::new()
+                .with_system(enable_player_gravity)
+                .into(),
+        )
+        .add_system_set(
+            ConditionSet::new()
+                .run_in_state(AppState::InGame(InGameState::Playing))
+                .with_system(animate_sprite)
+                .with_system(move_game_elements_horizontal)
+                .with_system(update_game_speed)
+                .with_system(ground_buffer_swap)
+                .with_system(player_jump)
+                .with_system(update_obstacles_data)
+                .with_system(spawn_obstacles)
+                .with_system(change_state_to_gameover_on_death_collision)
+                .with_system(despawn_passed_obstacles)
+                .into(),
+        )
         .run();
+}
+
+fn change_state_to_ready_to_start(mut commands: Commands) {
+    commands.insert_resource(NextState(AppState::InGame(InGameState::ReadyToStart)));
 }

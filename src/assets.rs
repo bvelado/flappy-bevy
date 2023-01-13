@@ -23,7 +23,7 @@ pub fn load_game_assets(mut commands: Commands, asset_server: Res<AssetServer>) 
     })
 }
 
-pub fn start_game_when_assets_loaded(
+pub fn change_state_to_ingame_when_assets_loaded(
     mut commands: Commands,
     game_assets: Res<GameAssets>,
     asset_server: Res<AssetServer>,
@@ -33,6 +33,6 @@ pub fn start_game_when_assets_loaded(
         && asset_server.get_load_state(game_assets.obstacle_image.clone()) == LoadState::Loaded
         && asset_server.get_load_state(game_assets.characters_image.clone()) == LoadState::Loaded
     {
-        commands.insert_resource(NextState(AppState::InGame(InGameState::Playing)))
+        commands.insert_resource(NextState(AppState::InGame(InGameState::Initialization)))
     }
 }

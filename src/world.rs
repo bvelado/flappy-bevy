@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{info, Commands, Component, Res, SpatialBundle, Transform, Vec3},
+    prelude::{Commands, Component, Res, Transform, Vec3},
     sprite::{Anchor, Sprite, SpriteBundle},
     transform::TransformBundle,
 };
@@ -14,17 +14,17 @@ use crate::{
 #[derive(Component)]
 pub struct Ground;
 
-pub fn spawn_world_background(mut commands: Commands, game_assets: Res<GameAssets>) {
-    commands.spawn(SpriteBundle {
-        texture: game_assets.background_image.clone(),
-        sprite: Sprite {
-            anchor: Anchor::Center,
-            ..Default::default()
-        },
-        transform: Transform::from_translation(Vec3::ZERO),
-        ..Default::default()
-    });
-}
+// pub fn spawn_world_background(mut commands: Commands, game_assets: Res<GameAssets>) {
+//     commands.spawn(SpriteBundle {
+//         texture: game_assets.background_image.clone(),
+//         sprite: Sprite {
+//             anchor: Anchor::Center,
+//             ..Default::default()
+//         },
+//         transform: Transform::from_translation(Vec3::ZERO),
+//         ..Default::default()
+//     });
+// }
 
 pub fn spawn_world_ground(mut commands: Commands, game_assets: Res<GameAssets>) {
     // spawn both backgrounds
