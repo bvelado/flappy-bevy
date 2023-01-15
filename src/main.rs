@@ -6,6 +6,7 @@ mod consts;
 mod game;
 mod obstacles;
 mod player;
+mod ui;
 mod world;
 
 // use bevy_prototype_lyon::prelude::*;
@@ -28,6 +29,7 @@ use obstacles::{
     ObstaclesData,
 };
 use player::{enable_player_gravity, player_jump, reset_player_state, spawn_player};
+use ui::{despawn_game_ready_label, spawn_game_ready_label};
 use world::spawn_world_ground;
 
 fn main() {
@@ -90,6 +92,7 @@ fn main() {
             ConditionSet::new()
                 .with_system(reset_player_state)
                 .with_system(reset_obstacles_state)
+                .with_system(spawn_game_ready_label)
                 .into(),
         )
         .add_system_set(
@@ -97,6 +100,12 @@ fn main() {
                 .run_in_state(AppState::InGame(InGameState::ReadyToStart))
                 .with_system(change_state_to_playing_on_input)
                 .with_system(animate_sprite)
+                .into(),
+        )
+        .add_exit_system_set(
+            AppState::InGame(InGameState::ReadyToStart),
+            ConditionSet::new()
+                .with_system(despawn_game_ready_label)
                 .into(),
         )
         // IN GAME - PLAYING

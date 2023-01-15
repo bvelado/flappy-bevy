@@ -1,6 +1,7 @@
 use bevy::{
     asset::LoadState,
     prelude::{AssetServer, Commands, Handle, Image, Res, Resource},
+    text::Font,
 };
 use iyes_loopless::state::NextState;
 
@@ -12,6 +13,7 @@ pub struct GameAssets {
     pub obstacle_image: Handle<Image>,
     pub ground_image: Handle<Image>,
     pub characters_image: Handle<Image>,
+    pub font: Handle<Font>,
 }
 
 pub fn load_game_assets(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -20,6 +22,7 @@ pub fn load_game_assets(mut commands: Commands, asset_server: Res<AssetServer>) 
         obstacle_image: asset_server.load("obstacle.png"),
         ground_image: asset_server.load("ground.png"),
         characters_image: asset_server.load("characters.png"),
+        font: asset_server.load("fonts/dogica.ttf")
     })
 }
 
@@ -32,6 +35,7 @@ pub fn change_state_to_ingame_when_assets_loaded(
         && asset_server.get_load_state(game_assets.ground_image.clone()) == LoadState::Loaded
         && asset_server.get_load_state(game_assets.obstacle_image.clone()) == LoadState::Loaded
         && asset_server.get_load_state(game_assets.characters_image.clone()) == LoadState::Loaded
+        && asset_server.get_load_state(game_assets.font.clone()) == LoadState::Loaded
     {
         commands.insert_resource(NextState(AppState::InGame(InGameState::Initialization)))
     }
