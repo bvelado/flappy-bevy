@@ -10,7 +10,6 @@ pub enum AppState {
 #[derive(Debug, Hash, Clone, Eq, PartialEq)]
 pub enum LaunchingState {
     Loading,
-    ReadyToLaunch,
 }
 
 #[derive(Debug, Hash, Clone, Eq, PartialEq)]

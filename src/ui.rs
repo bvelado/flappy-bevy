@@ -9,7 +9,6 @@ use crate::assets::GameAssets;
 
 #[derive(Component, Clone, Copy, PartialEq, Eq)]
 pub enum UiElement {
-    MainMenuTitle,
     GameReadyLabel,
 }
 

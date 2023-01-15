@@ -18,10 +18,10 @@ pub struct GameAssets {
 
 pub fn load_game_assets(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(GameAssets {
-        background_image: asset_server.load("background.png"),
-        obstacle_image: asset_server.load("obstacle.png"),
-        ground_image: asset_server.load("ground.png"),
-        characters_image: asset_server.load("characters.png"),
+        background_image: asset_server.load("sprites/background.png"),
+        obstacle_image: asset_server.load("sprites/obstacle.png"),
+        ground_image: asset_server.load("sprites/ground.png"),
+        characters_image: asset_server.load("sprites/characters.png"),
         font: asset_server.load("fonts/dogica.ttf")
     })
 }

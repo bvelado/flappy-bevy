@@ -58,14 +58,12 @@ pub fn update_game_speed(
     data.acceleration_tick_timer.tick(time.delta());
     if data.acceleration_tick_timer.just_finished() {
         game_speed.factor *= ACCELERATION_FACTOR;
-        info!("Lets go baby {}", game_speed.factor);
     }
 }
 
 pub fn ground_buffer_swap(mut q_ground_elements: Query<&mut Transform, With<Ground>>) {
     for mut t in q_ground_elements.iter_mut() {
         if t.translation.x < -GAME_WIDTH / 2. {
-            info!("Swap ! {} was less than {}", t.translation.x, -GAME_WIDTH);
             t.translation.x += 2.0 * GAME_WIDTH;
         }
     }

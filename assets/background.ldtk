@@ -120,7 +120,7 @@
 			"__cHei": 3,
 			"identifier": "characters",
 			"uid": 4,
-			"relPath": "characters.png",
+			"relPath": "sprites/characters.png",
 			"embedAtlas": null,
 			"pxWid": 232,
 			"pxHei": 76,
