@@ -42,9 +42,14 @@ use ui::{
 };
 use world::spawn_world_ground;
 
-fn main() {
-    App::new()
-        .insert_resource(ClearColor(Color::hex("dff6f5").unwrap()))
+pub struct BuildGameAppData {
+    pub canvas: Option<String>,
+    pub window_title: Option<String>,
+}
+
+pub fn build_game_app(data: BuildGameAppData) -> App {
+    let mut app = App::new();
+    app.insert_resource(ClearColor(Color::hex("dff6f5").unwrap()))
         .insert_resource(GameSpeed {
             factor: BASE_GAME_SPEED,
         })
@@ -59,9 +64,10 @@ fn main() {
             DefaultPlugins
                 .set(WindowPlugin {
                     window: WindowDescriptor {
-                        title: "Flappy Bevy 🐦".to_string(),
+                        title: data.window_title.unwrap_or("Flappy Bevy".to_string()),
                         height: GAME_HEIGHT,
                         width: GAME_WIDTH,
+                        canvas: data.canvas,
                         present_mode: PresentMode::AutoVsync,
                         ..Default::default()
                     },
@@ -70,7 +76,7 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
         )
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(36.0))
-        .add_plugin(RapierDebugRenderPlugin::default())
+        // .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(RngPlugin::default())
         .add_loopless_state(AppState::Launching(LaunchingState::Loading))
         // LAUNCHING - LOADING
@@ -149,8 +155,8 @@ fn main() {
         .add_exit_system_set(
             AppState::InGame(InGameState::Playing),
             ConditionSet::new().with_system(despawn_game_score).into(),
-        )
-        .run();
+        );
+    app
 }
 
 fn change_state_to_ready_to_start(mut commands: Commands) {

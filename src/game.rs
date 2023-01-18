@@ -1,18 +1,10 @@
 use bevy::{
-    prelude::{
-        info, Commands, Component, Entity, EventReader, Local, Name, Query, Res, ResMut, Resource,
-        Transform, With,
-    },
+    prelude::{Component, Local, Query, Res, ResMut, Resource, Transform, With},
     time::{Time, Timer, TimerMode},
 };
-use bevy_rapier2d::prelude::CollisionEvent;
-use iyes_loopless::state::NextState;
 
 use crate::{
-    app_states::{AppState, InGameState},
     consts::{ACCELERATION_FACTOR, BASE_MOVE_SPEED, GAME_WIDTH, SECONDS_BETWEEN_ACCELERATION_TICK},
-    obstacles::Obstacle,
-    player::Player,
     world::Ground,
 };
 

@@ -1,7 +1,6 @@
 use bevy::{
     prelude::{
-        info, Changed, Color, Commands, Component, DespawnRecursiveExt, Entity, Query, Res,
-        Transform, Vec3,
+        Color, Commands, Component, DespawnRecursiveExt, Entity, Query, Res, Transform, Vec3,
     },
     text::{Text, Text2dBundle, TextAlignment, TextStyle},
 };

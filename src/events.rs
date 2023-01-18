@@ -1,5 +1,5 @@
-use bevy::prelude::{info, Commands, Entity, EventReader, EventWriter, Name, Query, ResMut, With};
-use bevy_rapier2d::prelude::{CollisionEvent, ContactForceEvent, Sensor};
+use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, With};
+use bevy_rapier2d::prelude::CollisionEvent;
 use iyes_loopless::state::NextState;
 
 use crate::{

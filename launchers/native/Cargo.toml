@@ -1,0 +1,9 @@
+[package]
+edition = "2021"
+name = "native"
+version = "0.1.0"
+workspace = "../.."
+
+[dependencies]
+bevy = "0.9.1"
+flappy_bevy = {path = "../.."}

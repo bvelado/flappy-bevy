@@ -7,7 +7,7 @@ use bevy::{
     time::{Timer, TimerMode},
 };
 use bevy_rapier2d::prelude::{
-    ActiveEvents, Ccd, Collider, CollisionGroups, GravityScale, Group, RigidBody, Velocity,
+    ActiveEvents, Ccd, Collider, CollisionGroups, GravityScale, LockedAxes, RigidBody, Velocity,
 };
 
 use crate::{
@@ -61,6 +61,7 @@ pub fn spawn_player(
             COLLISION_GROUP_GAME_OVER.union(COLLISION_GROUP_OPENING),
         ),
         Velocity::zero(),
+        LockedAxes::from(LockedAxes::TRANSLATION_LOCKED_X | LockedAxes::ROTATION_LOCKED),
         ActiveEvents::COLLISION_EVENTS,
     ));
 }
