@@ -1,18 +1,20 @@
 use bevy::{
     prelude::{
-        Commands, Component, Entity, Handle, Image, Query, Res, ResMut, Resource, Transform, Vec2,
-        Vec3, With,
+        Commands, Component, Entity, Handle, Image, Name, Query, Res, ResMut, Resource, Transform,
+        Vec2, Vec3,
     },
     sprite::{Anchor, Sprite, SpriteBundle},
     time::Time,
+    transform::TransformBundle,
 };
-use bevy_rapier2d::prelude::{Collider, CollisionGroups, GravityScale, RigidBody};
+use bevy_rapier2d::prelude::{Collider, CollisionGroups, GravityScale, RigidBody, Sensor};
 use bevy_turborand::{DelegatedRng, GlobalRng};
 
 use crate::{
     assets::GameAssets,
     consts::{
-        BASE_MOVE_SPEED, COLLISION_GROUP_DEATH, COLLISION_GROUP_PLAYER, GAME_HEIGHT, GAME_WIDTH,
+        BASE_MOVE_SPEED, COLLISION_GROUP_GAME_OVER, COLLISION_GROUP_OPENING,
+        COLLISION_GROUP_PLAYER, GAME_HEIGHT, GAME_WIDTH,
     },
     game::{GameSpeed, HorizontalMove},
 };
@@ -34,8 +36,12 @@ pub struct ObstaclesData {
     last_obstacle_distance: f32,
 }
 
-#[derive(Component)]
-pub struct Obstacle;
+#[derive(Component, Eq, PartialEq, Debug, Clone, Copy)]
+pub enum Obstacle {
+    GameOver,
+    GameOverStatic,
+    Opening,
+}
 
 pub fn update_obstacles_data(
     mut obstacle_data: ResMut<ObstaclesData>,
@@ -75,12 +81,12 @@ pub fn spawn_obstacles(
 
 pub fn despawn_passed_obstacles(
     mut commands: Commands,
-    q_obstacles: Query<(Entity, &Transform), With<Obstacle>>,
+    q_obstacles: Query<(Entity, &Transform, &Obstacle)>,
 ) {
-    for (e, t) in q_obstacles.iter() {
+    for (e, t, &o) in q_obstacles.iter() {
         // should be obstacle sprite width / 2 but the delta is used as a safety measure
         // to despawn only off screen obstacles
-        if t.translation.x < -OBSTACLE_SPRITE_WIDTH - GAME_WIDTH / 2.0 {
+        if o == Obstacle::GameOver && t.translation.x < -OBSTACLE_SPRITE_WIDTH - GAME_WIDTH / 2.0 {
             commands.entity(e).despawn();
         }
     }
@@ -88,11 +94,14 @@ pub fn despawn_passed_obstacles(
 
 pub fn reset_obstacles_state(
     mut commands: Commands,
-    q_obstacles: Query<Entity, With<Obstacle>>,
+    q_obstacles: Query<(Entity, &Obstacle)>,
     mut obstacles_data: ResMut<ObstaclesData>,
 ) {
-    for e in q_obstacles.iter() {
-        commands.entity(e).despawn();
+    for (e, &o) in q_obstacles.iter() {
+        match o {
+            Obstacle::GameOver | Obstacle::Opening => commands.entity(e).despawn(),
+            _ => {}
+        }
     }
     *obstacles_data = ObstaclesData::default();
 }
@@ -121,6 +130,14 @@ fn spawn_obstacle_entities(
             obstacle_opening_bottom_y_pos + sprite_height_offset_y + OBSTACLE_OPENING_HEIGHT,
         ),
         true,
+    );
+
+    spawn_obstacle_opening_sensor_entity(
+        commands,
+        Vec2::new(
+            obstacle_pos_x,
+            obstacle_opening_bottom_y_pos + OBSTACLE_OPENING_HEIGHT / 2.0,
+        ),
     );
 }
 
@@ -164,7 +181,23 @@ fn spawn_obstacle_entity(
         RigidBody::KinematicPositionBased,
         Collider::cuboid(9.0, OBSTACLE_SPRITE_HEIGHT / 2.0),
         GravityScale(0.0),
-        CollisionGroups::new(COLLISION_GROUP_DEATH, COLLISION_GROUP_PLAYER),
-        Obstacle,
+        CollisionGroups::new(COLLISION_GROUP_GAME_OVER, COLLISION_GROUP_PLAYER),
+        Obstacle::GameOver,
+    ));
+}
+
+pub fn spawn_obstacle_opening_sensor_entity(commands: &mut Commands, obstacle_pos: Vec2) {
+    commands.spawn((
+        TransformBundle {
+            local: Transform::from_translation(Vec3::new(obstacle_pos.x, obstacle_pos.y, 0.0)),
+            ..Default::default()
+        },
+        HorizontalMove { factor: 1.0 },
+        Collider::cuboid(9.0, OBSTACLE_OPENING_HEIGHT / 2.0),
+        GravityScale(0.0),
+        CollisionGroups::new(COLLISION_GROUP_OPENING, COLLISION_GROUP_PLAYER),
+        Sensor,
+        Name::new("Opening"),
+        Obstacle::Opening,
     ));
 }

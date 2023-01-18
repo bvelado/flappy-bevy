@@ -7,8 +7,9 @@ use bevy_rapier2d::prelude::{Collider, CollisionGroups, GravityScale, LockedAxes
 
 use crate::{
     assets::GameAssets,
-    consts::{COLLISION_GROUP_DEATH, COLLISION_GROUP_PLAYER, GAME_HEIGHT, GAME_WIDTH},
+    consts::{COLLISION_GROUP_GAME_OVER, COLLISION_GROUP_PLAYER, GAME_HEIGHT, GAME_WIDTH},
     game::HorizontalMove,
+    obstacles::Obstacle,
 };
 
 #[derive(Component)]
@@ -67,7 +68,8 @@ pub fn spawn_world_ground(mut commands: Commands, game_assets: Res<GameAssets>) 
         RigidBody::Fixed,
         GravityScale(0.0),
         LockedAxes::TRANSLATION_LOCKED | LockedAxes::ROTATION_LOCKED,
-        CollisionGroups::new(COLLISION_GROUP_DEATH, COLLISION_GROUP_PLAYER),
+        CollisionGroups::new(COLLISION_GROUP_GAME_OVER, COLLISION_GROUP_PLAYER),
+        Obstacle::GameOverStatic,
     ));
     commands.spawn((
         TransformBundle::from(Transform::from_xyz(
@@ -79,6 +81,7 @@ pub fn spawn_world_ground(mut commands: Commands, game_assets: Res<GameAssets>) 
         RigidBody::Fixed,
         GravityScale(0.0),
         LockedAxes::TRANSLATION_LOCKED | LockedAxes::ROTATION_LOCKED,
-        CollisionGroups::new(COLLISION_GROUP_DEATH, COLLISION_GROUP_PLAYER),
+        CollisionGroups::new(COLLISION_GROUP_GAME_OVER, COLLISION_GROUP_PLAYER),
+        Obstacle::GameOverStatic,
     ));
 }

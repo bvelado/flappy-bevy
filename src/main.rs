@@ -3,6 +3,7 @@ mod app_states;
 mod assets;
 mod camera;
 mod consts;
+mod events;
 mod game;
 mod obstacles;
 mod player;
@@ -11,8 +12,14 @@ mod world;
 
 // use bevy_prototype_lyon::prelude::*;
 use bevy::{prelude::*, window::PresentMode};
-use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
+use bevy_rapier2d::{
+    prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin},
+    render::RapierDebugRenderPlugin,
+};
 use bevy_turborand::prelude::*;
+use events::{
+    dispatch_collision_events, handle_game_event_player_hit_game_over_collider, GameEvent,
+};
 use iyes_loopless::prelude::*;
 
 use animations::animate_sprite;
@@ -20,16 +27,19 @@ use app_states::{change_state_to_playing_on_input, AppState, InGameState, Launch
 use assets::{change_state_to_ingame_when_assets_loaded, load_game_assets};
 use camera::spawn_camera;
 use consts::{BASE_GAME_SPEED, GAME_HEIGHT, GAME_WIDTH, GRAVITY};
-use game::{
-    change_state_to_gameover_on_death_collision, ground_buffer_swap, move_game_elements_horizontal,
-    update_game_speed, GameSpeed,
-};
+use game::{ground_buffer_swap, move_game_elements_horizontal, update_game_speed, GameSpeed};
 use obstacles::{
     despawn_passed_obstacles, reset_obstacles_state, spawn_obstacles, update_obstacles_data,
     ObstaclesData,
 };
-use player::{enable_player_gravity, player_jump, reset_player_state, spawn_player};
-use ui::{despawn_game_ready_label, spawn_game_ready_label};
+use player::{
+    enable_player_gravity, handle_game_event_player_passed_opening, player_jump,
+    reset_player_score, reset_player_state, spawn_player, PlayerScore,
+};
+use ui::{
+    despawn_game_ready_label, despawn_game_score, spawn_game_ready_label, spawn_game_score,
+    update_player_score_label,
+};
 use world::spawn_world_ground;
 
 fn main() {
@@ -43,6 +53,8 @@ fn main() {
             ..Default::default()
         })
         .init_resource::<ObstaclesData>()
+        .init_resource::<PlayerScore>()
+        .add_event::<GameEvent>()
         .add_plugins(
             DefaultPlugins
                 .set(WindowPlugin {
@@ -58,7 +70,7 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
         )
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(36.0))
-        // .add_plugin(RapierDebugRenderPlugin::default())
+        .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(RngPlugin::default())
         .add_loopless_state(AppState::Launching(LaunchingState::Loading))
         // LAUNCHING - LOADING
@@ -91,6 +103,7 @@ fn main() {
             AppState::InGame(InGameState::ReadyToStart),
             ConditionSet::new()
                 .with_system(reset_player_state)
+                .with_system(reset_player_score)
                 .with_system(reset_obstacles_state)
                 .with_system(spawn_game_ready_label)
                 .into(),
@@ -113,6 +126,7 @@ fn main() {
             AppState::InGame(InGameState::Playing),
             ConditionSet::new()
                 .with_system(enable_player_gravity)
+                .with_system(spawn_game_score)
                 .into(),
         )
         .add_system_set(
@@ -125,9 +139,16 @@ fn main() {
                 .with_system(player_jump)
                 .with_system(update_obstacles_data)
                 .with_system(spawn_obstacles)
-                .with_system(change_state_to_gameover_on_death_collision)
                 .with_system(despawn_passed_obstacles)
+                .with_system(update_player_score_label)
+                .with_system(dispatch_collision_events)
+                .with_system(handle_game_event_player_hit_game_over_collider)
+                .with_system(handle_game_event_player_passed_opening)
                 .into(),
+        )
+        .add_exit_system_set(
+            AppState::InGame(InGameState::Playing),
+            ConditionSet::new().with_system(despawn_game_score).into(),
         )
         .run();
 }

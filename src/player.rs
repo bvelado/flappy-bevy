@@ -1,23 +1,29 @@
 use bevy::{
     prelude::{
-        Assets, Commands, Component, Input, KeyCode, MouseButton, Quat, Query, Res, ResMut,
-        Transform, Vec2, Vec3, With,
+        Assets, Commands, Component, EventReader, Input, KeyCode, MouseButton, Quat, Query, Res,
+        ResMut, Resource, Transform, Vec2, Vec3, With,
     },
     sprite::{SpriteSheetBundle, TextureAtlas, TextureAtlasSprite},
     time::{Timer, TimerMode},
 };
 use bevy_rapier2d::prelude::{
-    ActiveEvents, Ccd, Collider, CollisionGroups, GravityScale, RigidBody, Velocity,
+    ActiveEvents, Ccd, Collider, CollisionGroups, GravityScale, Group, RigidBody, Velocity,
 };
 
 use crate::{
     animations::{AnimationIndices, AnimationTimer},
-    consts::{COLLISION_GROUP_DEATH, COLLISION_GROUP_PLAYER},
+    consts::{COLLISION_GROUP_GAME_OVER, COLLISION_GROUP_OPENING, COLLISION_GROUP_PLAYER},
+    events::GameEvent,
 };
 use crate::{assets::GameAssets, consts::JUMP_IMPULSE_VALUE};
 
 #[derive(Component)]
 pub struct Player;
+
+#[derive(Resource, Default, Debug, Clone, Copy)]
+pub struct PlayerScore {
+    pub value: u16,
+}
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -50,7 +56,10 @@ pub fn spawn_player(
         RigidBody::Dynamic,
         Ccd::enabled(),
         GravityScale(0.0),
-        CollisionGroups::new(COLLISION_GROUP_PLAYER, COLLISION_GROUP_DEATH),
+        CollisionGroups::new(
+            COLLISION_GROUP_PLAYER,
+            COLLISION_GROUP_GAME_OVER.union(COLLISION_GROUP_OPENING),
+        ),
         Velocity::zero(),
         ActiveEvents::COLLISION_EVENTS,
     ));
@@ -81,5 +90,21 @@ pub fn reset_player_state(
         t.rotation = Quat::IDENTITY;
         v.linvel = Vec2::ZERO;
         v.angvel = 0.0;
+    }
+}
+
+pub fn reset_player_score(mut player_score: ResMut<PlayerScore>) {
+    player_score.value = 0;
+}
+
+pub fn handle_game_event_player_passed_opening(
+    mut ev_game: EventReader<GameEvent>,
+    mut player_score: ResMut<PlayerScore>,
+) {
+    for _ in ev_game
+        .iter()
+        .filter(|&ev| ev == &GameEvent::PlayerPassedAnOpening)
+    {
+        player_score.value += 1;
     }
 }
