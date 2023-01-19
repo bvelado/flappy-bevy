@@ -14,7 +14,6 @@ mod world;
 use bevy::{prelude::*, window::PresentMode};
 use bevy_rapier2d::{
     prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin},
-    render::RapierDebugRenderPlugin,
 };
 use bevy_turborand::prelude::*;
 use events::{

@@ -116,28 +116,6 @@
 			}
 		},
 		{
-			"__cWid": 9,
-			"__cHei": 3,
-			"identifier": "characters",
-			"uid": 4,
-			"relPath": "sprites/characters.png",
-			"embedAtlas": null,
-			"pxWid": 232,
-			"pxHei": 76,
-			"tileGridSize": 24,
-			"spacing": 2,
-			"padding": 0,
-			"tags": [],
-			"tagsSourceEnumUid": null,
-			"enumTags": [],
-			"customData": [],
-			"savedSelections": [],
-			"cachedPixelData": {
-				"opaqueTiles": "000000000000000000000000000",
-				"averageColors": "a9cba9cbaacdaacdacbcacbcaccbaccb9899acccaccc4a744a748c948c95597769775977568a568a568ac68ad68ac69a587758775877"
-			}
-		},
-		{
 			"__cWid": 6,
 			"__cHei": 2,
 			"identifier": "background_tiles",

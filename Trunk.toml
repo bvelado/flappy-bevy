@@ -6,8 +6,8 @@ target = "launchers/wasm/index.html"
 # Watch top level dir (all crates)
 watch = [
     "src",
-    "launchers/native/src",
     "launchers/wasm/src",
+    "launchers/wasm/styles",
     "launchers/wasm/index.html"
 ]
 
